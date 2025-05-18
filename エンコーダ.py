@@ -1,72 +1,40 @@
-import os
-import cv2
-from PIL import Image
 import tkinter as tk
-from tkinter import filedialog, messagebox
 
-def convert_images():
-    folder_path = filedialog.askdirectory(initialdir=os.path.expanduser("~/Desktop"))
-    if not folder_path:
-        return
+def click(event):
+    current = entry.get()
+    text = event.widget["text"]
+    if text == "=":
+        try:
+            result = eval(current)
+            entry.delete(0, tk.END)
+            entry.insert(tk.END, str(result))
+        except:
+            entry.delete(0, tk.END)
+            entry.insert(tk.END, "エラー")
+    elif text == "c":
+        entry.delete(0, tk.END)
+    else:
+        entry.insert(tk.END, text)
+        
+root = tk.Tk()        
+root.title('電卓アプリ')
 
-    target_extensions = ['.png', '.webp', '.gif', '.avif']
-    files = sorted(os.listdir(folder_path))
-    converted_count = 0
+entry = tk.Entry(root, font="Arial 20")
+entry.pack(fill="both", ipadx=8, ipady=8)
 
-    for file_name in files:
-        file_lower = file_name.lower()
-        ext = os.path.splitext(file_lower)[1]
+buttons = [
+    ["7", "8", "9", "/"],
+    ["4", "5", "6", "*"],
+    ["1", "2", "3", "-"],
+    ["0", "C", "=", "+"]
+]
 
-        if ext in target_extensions:
-            file_path = os.path.join(folder_path, file_name)
-            new_file_path = os.path.join(folder_path, os.path.splitext(file_name)[0] + '.jpg')
-
-            try:
-                if ext in ['.png', '.webp']:
-                    try:
-                        # Pillow優先。OpenCVで読み込めない画像もあるため。
-                        with Image.open(file_path) as im:
-                            rgb_im = im.convert('RGB')
-                            rgb_im.save(new_file_path, 'JPEG')
-                    except:
-                        image = cv2.imread(file_path)
-                        if image is not None:
-                            cv2.imwrite(new_file_path, image)
-                        else:
-                            print(f"OpenCVでも読み込めませんでした: {file_name}")
-                            continue
-
-                elif ext in ['.gif', '.avif']:
-                    with Image.open(file_path) as im:
-                        rgb_im = im.convert('RGB')
-                        rgb_im.save(new_file_path, 'JPEG')
-
-                os.remove(file_path)
-                converted_count += 1
-
-            except Exception as e:
-                print(f"変換エラー: {file_name} → {e}")
-
-    messagebox.showinfo("完了", f"{converted_count} 枚の画像をJPGに変換し、元ファイルを削除しました。")
-
-# UI部分（同じ）
-root = tk.Tk()
-root.title("画像一括JPG変換")
-root.geometry("400x180")
-root.configure(bg="#f9f9f9")
-
-btn = tk.Button(
-    root,
-    text="フォルダを選んで変換開始",
-    command=convert_images,
-    font=("Helvetica", 14),
-    bg="#4CAF50",
-    fg="black",
-    padx=20,
-    pady=10,
-    relief="flat",
-    bd=0
-)
-btn.pack(expand=True)
-
-root.mainloop()
+for row in buttons:
+    frame = tk.Frame(root)
+    frame.pack()
+    for btn in row:
+        button = tk.Button(frame, text=btn, font="Arial 20", width=4, height=2)
+        button.pack(side="left", padx=5, pady=5)
+        button.bind("<Button-1>", click)
+        
+root.mainloop()        
