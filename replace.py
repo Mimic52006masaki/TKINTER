@@ -23,6 +23,9 @@ def copy_to_clipboard():
     root.clipboard_append(text)
     messagebox.showinfo("コピー完了", "変換後のテキストをクリップボードにコピーしました。")
 
+    # 変換前テキストフィールドをクリア
+    input_field.delete("1.0", tk.END)
+
 # GUI作成
 root = tk.Tk()
 root.title("テキストリプレイスツール")
